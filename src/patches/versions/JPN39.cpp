@@ -18,6 +18,7 @@ FUNCTION_PTR (i64, lua_settop, PROC_ADDRESS ("lua51.dll", "lua_settop"), u64, u6
 FUNCTION_PTR (i64, lua_pushboolean, PROC_ADDRESS ("lua51.dll", "lua_pushboolean"), u64, u64);
 // FUNCTION_PTR (i32, lua_toboolean, PROC_ADDRESS ("lua51.dll", "lua_toboolean"), u64, i32);
 FUNCTION_PTR (i64, lua_pushstring, PROC_ADDRESS ("lua51.dll", "lua_pushstring"), u64, u64);
+FUNCTION_PTR (u64, lua_pushcclosure, PROC_ADDRESS ("lua51.dll", "lua_pushcclosure"), i64, i64, i32);
 
 i64
 lua_pushtrue (i64 a1) {
@@ -78,9 +79,10 @@ SafetyHookMid freezeTimerHook{};
 
 void
 FreezeTimer (SafetyHookContext &ctx) {
-    void* pMethod = reinterpret_cast<void*>(lua_freeze_timer);
-    ctx.rdx = (uintptr_t) pMethod;
-    ctx.rip += 1;
+    auto a1 = ctx.rdi;
+    auto v9 = *(ctx.rax + 1);
+    lua_pushcclosure(a1, lua_freeze_timer, v9);
+    ctx.rip += 0x14;
 }
 
 int language = 0;
@@ -110,11 +112,11 @@ HOOK (i64, GetCabinetLanguage, ASLR (0x1401D1A60), i64, i64 a2) {
     return 1;
 }
 
-HOOK (i64, IsTimerNoMove, ASLR (0x1401D1B30), i64, i64 a2) {
-    lua_settop (a2, 0);
-    lua_pushboolean (a2, 1);
-    return 1;
-}
+// HOOK (i64, IsTimerNoMove, ASLR (0x1401D1B30), i64, i64 a2) {
+//     lua_settop (a2, 0);
+//     lua_pushboolean (a2, 1);
+//     return 1;
+// }
 
 // int loaded_fail_count = 0;
 // HOOK (i64, LoadedBankAll, ASLR (0x1404C6990), i64 a1) {
@@ -230,7 +232,7 @@ Init () {
 
     // Freeze Timer
     if (freezeTimer) {
-        freezeTimerHook = safetyhook::create_mid (ASLR (0x14019FF55), FreezeTimer);
+        freezeTimerHook = safetyhook::create_mid (ASLR (0x14019FF51), FreezeTimer);
         // INSTALL_HOOK (IsTimerNoMove);
     }
 
