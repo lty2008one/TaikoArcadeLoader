@@ -31,12 +31,8 @@ lua_pushtrue (i64 a1) {
 
 i64 __fastcall
 lua_freeze_timer (i64 a1) {
-    std::cout << "freeze_timer" << std::endl;
-    if (a1 != 0) {
-        i64 v2 = lua_touserdata (a1, 4294957292);
-        return lua_pushtrue (a1);
-    }
-    return 1;
+    // i64 v2 = lua_touserdata (a1, 4294957292);
+    return lua_pushtrue (a1);
 }
 
 HOOK (i64, AvailableMode_Collabo024, ASLR (0x1402DE710), i64 a1) { return lua_pushtrue (a1); }
@@ -83,23 +79,9 @@ SafetyHookMid freezeTimerHook{};
 
 void
 FreezeTimer (SafetyHookContext &ctx) {
-    // i64 __fastcall (*pMethod) (i64);
-    // uintptr_t pMethod_value = reinterpret_cast<uintptr_t>(&lua_freeze_timer);
-    // pMethod = reinterpret_cast<i64 __fastcall (*)(i64)>(pMethod_value);
-
-    // (*pMethod)(0);
-
-    // std::cout << "pMethod: " << pMethod << std::endl;
-    // std::cout << "pMethod_value: " << pMethod_value << std::endl;
-    // ctx.rdx = pMethod_value;
-    // ctx.rip += 1;
-    std::cout << "-----freeze rdi: " << ctx.rdi << std::endl;
-    std::cout << "-----freeze rax: " << ctx.rax << std::endl;
     auto a1 = ctx.rdi;
     int v9 = (int)(ctx.rax + 1);
-    std::cout << "-----freeze before push" << std::endl;
     lua_pushcclosure(a1, reinterpret_cast<i64>(&lua_freeze_timer), v9);
-    std::cout << "-----freeze after push" << std::endl;
     ctx.rip = ASLR (0x14019FF65);
 }
 
@@ -129,12 +111,6 @@ HOOK (i64, GetCabinetLanguage, ASLR (0x1401D1A60), i64, i64 a2) {
     lua_pushstring (a2, (u64)languageStr ());
     return 1;
 }
-
-// HOOK (i64, IsTimerNoMove, ASLR (0x1401D1B30), i64, i64 a2) {
-//     lua_settop (a2, 0);
-//     lua_pushboolean (a2, 1);
-//     return 1;
-// }
 
 // int loaded_fail_count = 0;
 // HOOK (i64, LoadedBankAll, ASLR (0x1404C6990), i64 a1) {
@@ -251,7 +227,7 @@ Init () {
     // Freeze Timer
     if (freezeTimer) {
         freezeTimerHook = safetyhook::create_mid (ASLR (0x14019FF51), FreezeTimer);
-        // INSTALL_HOOK (IsTimerNoMove);
+
     }
 
     // patch to use chs font/wordlist instead of cht
