@@ -16,9 +16,11 @@ HOOK_DYNAMIC (i64, __fastcall, curl_easy_setopt, i64 a1, i64 a2, i64 a3, i64 a4,
 
 FUNCTION_PTR (i64, lua_settop, PROC_ADDRESS ("lua51.dll", "lua_settop"), u64, u64);
 FUNCTION_PTR (i64, lua_pushboolean, PROC_ADDRESS ("lua51.dll", "lua_pushboolean"), u64, u64);
-// FUNCTION_PTR (i32, lua_toboolean, PROC_ADDRESS ("lua51.dll", "lua_toboolean"), u64, i32);
 FUNCTION_PTR (i64, lua_pushstring, PROC_ADDRESS ("lua51.dll", "lua_pushstring"), u64, u64);
 FUNCTION_PTR (i64, lua_pushcclosure, PROC_ADDRESS ("lua51.dll", "lua_pushcclosure"), u64, u64, u64);
+
+FUNCTION_PTR (i64, lua_toboolean, PROC_ADDRESS ("lua51.dll", "lua_toboolean"), u64, u64);
+FUNCTION_PTR (i64, lua_touserdata, PROC_ADDRESS ("lua51.dll", "lua_touserdata"), u64, u64);
 
 i64
 lua_pushtrue (i64 a1) {
@@ -31,8 +33,8 @@ i64 __fastcall
 lua_freeze_timer (i64 a1) {
     std::cout << "freeze_timer" << std::endl;
     if (a1 != 0) {
-        lua_settop (a1, 0);
-        lua_pushboolean (a1, 1);
+        i64 v2 = lua_touserdata (a1, 4294957292);
+        return lua_pushtrue (a1);
     }
     return 1;
 }
@@ -81,24 +83,24 @@ SafetyHookMid freezeTimerHook{};
 
 void
 FreezeTimer (SafetyHookContext &ctx) {
-    i64 __fastcall (*pMethod) (i64);
-    uintptr_t pMethod_value = reinterpret_cast<uintptr_t>(&lua_freeze_timer);
-    pMethod = reinterpret_cast<i64 __fastcall (*)(i64)>(pMethod_value);
+    // i64 __fastcall (*pMethod) (i64);
+    // uintptr_t pMethod_value = reinterpret_cast<uintptr_t>(&lua_freeze_timer);
+    // pMethod = reinterpret_cast<i64 __fastcall (*)(i64)>(pMethod_value);
 
-    (*pMethod)(0);
+    // (*pMethod)(0);
 
-    std::cout << "pMethod: " << pMethod << std::endl;
-    std::cout << "pMethod_value: " << pMethod_value << std::endl;
-    ctx.rdx = pMethod_value;
-    ctx.rip += 1;
-    // std::cout << "-----freeze rdi: " << ctx.rdi << std::endl;
-    // std::cout << "-----freeze rax: " << ctx.rax << std::endl;
-    // auto a1 = ctx.rdi;
-    // int v9 = (int)(ctx.rax + 1);
-    // std::cout << "-----freeze before push" << std::endl;
-    // lua_pushcclosure(a1, reinterpret_cast<u64>(&lua_freeze_timer), v9);
-    // std::cout << "-----freeze after push" << std::endl;
-    // ctx.rip += 4;
+    // std::cout << "pMethod: " << pMethod << std::endl;
+    // std::cout << "pMethod_value: " << pMethod_value << std::endl;
+    // ctx.rdx = pMethod_value;
+    // ctx.rip += 1;
+    std::cout << "-----freeze rdi: " << ctx.rdi << std::endl;
+    std::cout << "-----freeze rax: " << ctx.rax << std::endl;
+    auto a1 = ctx.rdi;
+    int v9 = (int)(ctx.rax + 1);
+    std::cout << "-----freeze before push" << std::endl;
+    lua_pushcclosure(a1, reinterpret_cast<i64>(&lua_freeze_timer), v9);
+    std::cout << "-----freeze after push" << std::endl;
+    ctx.rip += 4;
 }
 
 int language = 0;
