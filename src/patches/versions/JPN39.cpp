@@ -79,9 +79,13 @@ SafetyHookMid freezeTimerHook{};
 
 void
 FreezeTimer (SafetyHookContext &ctx) {
-    uintptr_t pMethod = reinterpret_cast<uintptr_t>(&lua_freeze_timer);
+    i64 __fastcall (*pMethod) (i64);
+    pMethod = &lua_freeze_timer;
+    uintptr_t pMethod_value = reinterpret_cast<uintptr_t>(&lua_freeze_timer);
+
     std::cout << "pMethod: " << pMethod << std::endl;
-    ctx.rdx = pMethod;
+    std::cout << "pMethod_value: " << pMethod_value << std::endl;
+    ctx.rdx = pMethod_value;
     ctx.rip += 1;
     // std::cout << "-----freeze rdi: " << ctx.rdi << std::endl;
     // std::cout << "-----freeze rax: " << ctx.rax << std::endl;
