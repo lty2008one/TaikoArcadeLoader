@@ -69,7 +69,7 @@ SafetyHookMid freezeTimerHook{};
 
 void
 FreezeTimer (SafetyHookContext &ctx) {
-    ctx.rdx = lua_pushtrue;
+    ctx.rdx = reinterpret_cast<uintptr_t>(lua_pushtrue);
     ctx.rip += 1;
 }
 
