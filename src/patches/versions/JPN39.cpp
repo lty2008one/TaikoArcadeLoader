@@ -80,7 +80,7 @@ SafetyHookMid freezeTimerHook{};
 void
 FreezeTimer (SafetyHookContext &ctx) {
     auto a1 = ctx.rdi;
-    auto v9 = *(ctx.rax + 1);
+    int v9 = *((int*)(ctx.rax + 1));
     lua_pushcclosure(a1, reinterpret_cast<u64>(lua_freeze_timer), v9);
     ctx.rip += 0x14;
 }
