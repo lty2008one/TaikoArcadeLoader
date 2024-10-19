@@ -26,6 +26,14 @@ lua_pushtrue (i64 a1) {
     return 1;
 }
 
+i64 __fastcall
+lua_freeze_timer (i64 a1) {
+    std::cout << "freeze_timer" << std::endl;
+    lua_settop (a1, 0);
+    lua_pushboolean (a1, 1);
+    return 1;
+}
+
 HOOK (i64, AvailableMode_Collabo024, ASLR (0x1402DE710), i64 a1) { return lua_pushtrue (a1); }
 HOOK (i64, AvailableMode_Collabo025, ASLR (0x1402DE6B0), i64 a1) { return lua_pushtrue (a1); }
 HOOK (i64, AvailableMode_Collabo026, ASLR (0x1402DE670), i64 a1) { return lua_pushtrue (a1); }
@@ -70,7 +78,8 @@ SafetyHookMid freezeTimerHook{};
 
 void
 FreezeTimer (SafetyHookContext &ctx) {
-    ctx.rdx = reinterpret_cast<uintptr_t>(lua_pushtrue);
+    void* pMethod = reinterpret_cast<void*>(lua_freeze_timer);
+    ctx.rdx = (uintptr_t) pMethod;
     ctx.rip += 1;
 }
 
