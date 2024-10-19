@@ -92,6 +92,12 @@ HOOK (i64, GetCabinetLanguage, ASLR (0x1401D1A60), i64, i64 a2) {
     return 1;
 }
 
+HOOK (i64, IsTimerNoMove, ASLR (0x1401D1B30), i64, i64 a2) {
+    lua_settop (a2, 0);
+    lua_pushboolean (a2, 1);
+    return 1;
+}
+
 void
 Init () {
     i32 xRes              = 1920;
@@ -135,7 +141,6 @@ Init () {
     WRITE_MEMORY (ASLR (0x140494533), i32, xRes);
     WRITE_MEMORY (ASLR (0x14049453A), i32, yRes);
     if (unlockSongs) WRITE_MEMORY (ASLR (0x1403F45CF), u8, 0xB0, 0x01);
-    if (freezeTimer) WRITE_MEMORY (ASLR (0x140CA1D70), u8, 0x63, 0x6F, 0x74, 0x74, 0x6F, 0x6E, 0x73, 0x61, 0x6B, 0x75, 0x73, 0x65, 0x69, 0x00);
 
     // Bypass errors
     WRITE_MEMORY (ASLR (0x140041A00), u8, 0xC3);
@@ -185,6 +190,9 @@ Init () {
         ReplaceLeaBufferAddress (datatableBuffer3Addresses, datatableBuffer3.data ());
     }
 
+    // Freeze Timer
+    if (freezeTimer) INSTALL_HOOK (IsTimerNoMove);
+
     // patch to use chs font/wordlist instead of cht
     if (chsPatch) {
         WRITE_MEMORY (ASLR (0x140CD1AE0), char, "cn_64");
@@ -203,6 +211,7 @@ Init () {
         INSTALL_HOOK (GetCabinetLanguage);
     }
 
+    // Mode unlock
     if (modeCollabo025) INSTALL_HOOK (AvailableMode_Collabo025);
     if (modeCollabo026) INSTALL_HOOK (AvailableMode_Collabo026);
     if (modeAprilFool001) INSTALL_HOOK (AvailableMode_AprilFool001);
