@@ -14,10 +14,14 @@ HOOK_DYNAMIC (i64, __fastcall, curl_easy_setopt, i64 a1, i64 a2, i64 a3, i64 a4,
     return originalcurl_easy_setopt (a1, a2, a3, a4, a5);
 }
 
+std::cout << "begin read lua funcs" << std::endl;
+
 FUNCTION_PTR (i64, lua_settop, PROC_ADDRESS ("lua51.dll", "lua_settop"), u64, u64);
 FUNCTION_PTR (i64, lua_pushboolean, PROC_ADDRESS ("lua51.dll", "lua_pushboolean"), u64, u64);
-FUNCTION_PTR (i32*, lua_toboolean, PROC_ADDRESS_OFFSET ("lua51.dll", 0x6C00), i64, i32);
+FUNCTION_PTR (i32, lua_toboolean, PROC_ADDRESS ("lua51.dll", lua_toboolean), u64, i32);
 FUNCTION_PTR (i64, lua_pushstring, PROC_ADDRESS ("lua51.dll", "lua_pushstring"), u64, u64);
+
+std::cout << "end read lua funcs" << std::endl;
 
 i64
 lua_pushtrue (i64 a1) {
@@ -109,6 +113,7 @@ HOOK (i64, IsTimerNoMove, ASLR (0x1401D1B30), i64, i64 a2) {
 
 int loaded_fail_count = 0;
 HOOK (i64, LoadedBankAll, ASLR (0x1404C6990), i64 a1) {
+    std::cout << "LoadBankAll start" << std::endl;
     originalLoadedBankAll (a1);
     auto result = lua_toboolean(a1, -1);
     std::cout << "LoadedBankAll returns: " << result << std::endl;
