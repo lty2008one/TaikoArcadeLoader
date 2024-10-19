@@ -113,15 +113,15 @@ HOOK (i64, GetCabinetLanguage, ASLR (0x1401D1A60), i64, i64 a2) {
 
 int loaded_fail_count = 0;
 HOOK (i64, LoadedBankAll, ASLR (0x1404C69F0), i64 a1) {
-    std::cout << "LoadBankAll start" << std::endl;
     originalLoadedBankAll (a1);
     auto result = lua_toboolean(a1, -1);
     std::cout << "LoadedBankAll returns: " << result << std::endl;
-    // std::cout << "LoadedBankAll returns: " << *((int32_t*)result) << std::endl;
     lua_settop(a1, 0);
     if (result) {
+        loaded_fail_count = 0;
         lua_pushboolean (a1, 1);
     } else if (loaded_fail_count > 10) {
+        loaded_fail_count = 0;
         lua_pushboolean (a1, 1);
     } else {
         loaded_fail_count += 1;
