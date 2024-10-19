@@ -79,14 +79,14 @@ SafetyHookMid freezeTimerHook{};
 
 void
 FreezeTimer (SafetyHookContext &ctx) {
-    std::cout << "-----freeze rcx: " << ctx.rcx << std::endl;
+    std::cout << "-----freeze rdi: " << ctx.rdi << std::endl;
     std::cout << "-----freeze rax: " << ctx.rax << std::endl;
-    auto a1 = ctx.rcx;
+    auto a1 = ctx.rdi;
     int v9 = (int)(ctx.rax + 1);
     std::cout << "-----freeze before push" << std::endl;
     lua_pushcclosure(a1, reinterpret_cast<u64>(&lua_freeze_timer), v9);
     std::cout << "-----freeze after push" << std::endl;
-    ctx.rip += 0x14;
+    ctx.rip += 4;
 }
 
 int language = 0;
