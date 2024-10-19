@@ -18,7 +18,7 @@ FUNCTION_PTR (i64, lua_settop, PROC_ADDRESS ("lua51.dll", "lua_settop"), u64, u6
 FUNCTION_PTR (i64, lua_pushboolean, PROC_ADDRESS ("lua51.dll", "lua_pushboolean"), u64, u64);
 // FUNCTION_PTR (i32, lua_toboolean, PROC_ADDRESS ("lua51.dll", "lua_toboolean"), u64, i32);
 FUNCTION_PTR (i64, lua_pushstring, PROC_ADDRESS ("lua51.dll", "lua_pushstring"), u64, u64);
-FUNCTION_PTR (u64, lua_pushcclosure, PROC_ADDRESS ("lua51.dll", "lua_pushcclosure"), i64, i64, i32);
+FUNCTION_PTR (i64, lua_pushcclosure, PROC_ADDRESS ("lua51.dll", "lua_pushcclosure"), u64, u64, u64);
 
 i64
 lua_pushtrue (i64 a1) {
@@ -81,7 +81,7 @@ void
 FreezeTimer (SafetyHookContext &ctx) {
     auto a1 = ctx.rdi;
     auto v9 = *(ctx.rax + 1);
-    lua_pushcclosure(a1, reinterpret_cast<void*>(lua_freeze_timer), v9);
+    lua_pushcclosure(a1, reinterpret_cast<u64>(lua_freeze_timer), v9);
     ctx.rip += 0x14;
 }
 
