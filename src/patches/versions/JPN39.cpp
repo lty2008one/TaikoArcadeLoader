@@ -48,7 +48,7 @@ AllocateStaticBufferNear (void *target_address, size_t size, safetyhook::Allocat
 }
 
 void
-ReplaceLeaBufferAddress (const std::vector<uintptr_t> &bufferAddresses, void *newBufferAddress) {å
+ReplaceLeaBufferAddress (const std::vector<uintptr_t> &bufferAddresses, void *newBufferAddress) {
     for (auto bufferAddress : bufferAddresses) {
         uintptr_t lea_instruction_dst = ASLR (bufferAddress) + 3;
         uintptr_t lea_instruction_end = ASLR (bufferAddress) + 7;
