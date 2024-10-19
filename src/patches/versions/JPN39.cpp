@@ -30,8 +30,10 @@ lua_pushtrue (i64 a1) {
 i64 __fastcall
 lua_freeze_timer (i64 a1) {
     std::cout << "freeze_timer" << std::endl;
-    lua_settop (a1, 0);
-    lua_pushboolean (a1, 1);
+    if (a1 != 0) {
+        lua_settop (a1, 0);
+        lua_pushboolean (a1, 1);
+    }
     return 1;
 }
 
@@ -80,8 +82,10 @@ SafetyHookMid freezeTimerHook{};
 void
 FreezeTimer (SafetyHookContext &ctx) {
     i64 __fastcall (*pMethod) (i64);
-    pMethod = &lua_freeze_timer;
     uintptr_t pMethod_value = reinterpret_cast<uintptr_t>(&lua_freeze_timer);
+    pMethod = reinterpret_cast<i64 __fastcall (i64)>pMethod_value;
+
+    pMethod(0);
 
     std::cout << "pMethod: " << pMethod << std::endl;
     std::cout << "pMethod_value: " << pMethod_value << std::endl;
