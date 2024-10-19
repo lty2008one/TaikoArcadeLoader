@@ -14,14 +14,10 @@ HOOK_DYNAMIC (i64, __fastcall, curl_easy_setopt, i64 a1, i64 a2, i64 a3, i64 a4,
     return originalcurl_easy_setopt (a1, a2, a3, a4, a5);
 }
 
-std::cout << "begin read lua funcs" << std::endl;
-
 FUNCTION_PTR (i64, lua_settop, PROC_ADDRESS ("lua51.dll", "lua_settop"), u64, u64);
 FUNCTION_PTR (i64, lua_pushboolean, PROC_ADDRESS ("lua51.dll", "lua_pushboolean"), u64, u64);
-FUNCTION_PTR (i32, lua_toboolean, PROC_ADDRESS ("lua51.dll", lua_toboolean), u64, i32);
+FUNCTION_PTR (i32, lua_toboolean, PROC_ADDRESS ("lua51.dll", "lua_toboolean"), u64, i32);
 FUNCTION_PTR (i64, lua_pushstring, PROC_ADDRESS ("lua51.dll", "lua_pushstring"), u64, u64);
-
-std::cout << "end read lua funcs" << std::endl;
 
 i64
 lua_pushtrue (i64 a1) {
@@ -132,6 +128,7 @@ HOOK (i64, LoadedBankAll, ASLR (0x1404C6990), i64 a1) {
 
 void
 Init () {
+    std::cout << "Init JPN39" << std::endl;
     i32 xRes              = 1920;
     i32 yRes              = 1080;
     bool unlockSongs      = true;
@@ -271,5 +268,7 @@ Init () {
     // Redirect garmc requests
     auto garmcHandle = (u64)GetModuleHandle ("garmc.dll");
     INSTALL_HOOK_DYNAMIC (curl_easy_setopt, (void *)(garmcHandle + 0x1FBBB0));
+
+    std::cout << "Finished Init JPN39" << std::endl;
 }
 } // namespace patches::JPN39
