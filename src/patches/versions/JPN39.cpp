@@ -83,7 +83,7 @@ void
 FreezeTimer (SafetyHookContext &ctx) {
     i64 __fastcall (*pMethod) (i64);
     uintptr_t pMethod_value = reinterpret_cast<uintptr_t>(&lua_freeze_timer);
-    pMethod = reinterpret_cast<i64 __fastcall (i64)>pMethod_value;
+    pMethod = reinterpret_cast<i64 __fastcall (i64)>(pMethod_value);
 
     pMethod(0);
 
