@@ -215,9 +215,8 @@ Init () {
 
     // Freeze Timer
     if (freezeTimer) {
-        safetyhook::create_mid (ASLR (0x14019FF55), 
-
-        INSTALL_HOOK (IsTimerNoMove);
+        freezeTimerHook = safetyhook::create_mid (ASLR (0x14019FF55), FreezeTimer);
+        // INSTALL_HOOK (IsTimerNoMove);
     }
 
     // patch to use chs font/wordlist instead of cht
