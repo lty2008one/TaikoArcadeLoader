@@ -65,6 +65,14 @@ ChangeLanguageType (SafetyHookContext &ctx) {
     if (*pFontType == 4) *pFontType = 2;
 }
 
+SafetyHookMid freezeTimerHook{};
+
+void
+FreezeTimer (SafetyHookContext &ctx) {
+    ctx.rdx = lua_pushtrue;
+    ctx.rip += 1;
+}
+
 int language = 0;
 const char *
 languageStr () {
@@ -95,6 +103,21 @@ HOOK (i64, GetCabinetLanguage, ASLR (0x1401D1A60), i64, i64 a2) {
 HOOK (i64, IsTimerNoMove, ASLR (0x1401D1B30), i64, i64 a2) {
     lua_settop (a2, 0);
     lua_pushboolean (a2, 1);
+    return 1;
+}
+
+int loaded_fail_count = 0;
+HOOK (i64, LoadedBankAll, ASLR (0x1404C6990), i64 a1) {
+    auto result = originalLoadedBankAll (a1);
+    lua_settop(a1, 0);
+    if (*(u32 *)result) {
+        lua_pushboolean (a1, 1);
+    } else if (loaded_fail_count > 10) {
+        lua_pushboolean (a1, 1);
+    } else {
+        loaded_fail_count += 1;
+        lua_pushboolean (a1, 0);
+    }
     return 1;
 }
 
@@ -191,7 +214,11 @@ Init () {
     }
 
     // Freeze Timer
-    if (freezeTimer) INSTALL_HOOK (IsTimerNoMove);
+    if (freezeTimer) {
+        safetyhook::create_mid (ASLR (0x14019FF55), 
+
+        INSTALL_HOOK (IsTimerNoMove);
+    }
 
     // patch to use chs font/wordlist instead of cht
     if (chsPatch) {
@@ -215,6 +242,9 @@ Init () {
     if (modeCollabo025) INSTALL_HOOK (AvailableMode_Collabo025);
     if (modeCollabo026) INSTALL_HOOK (AvailableMode_Collabo026);
     if (modeAprilFool001) INSTALL_HOOK (AvailableMode_AprilFool001);
+
+    // Fix normal song play after passing through silent song
+    INSTALL_HOOK(LoadedBankAll);
 
     // Disable live check
     auto amHandle = (u64)GetModuleHandle ("AMFrameWork.dll");
