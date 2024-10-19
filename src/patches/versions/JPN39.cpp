@@ -238,7 +238,7 @@ Init () {
 
     // Freeze Timer
     if (freezeTimer) {
-        freezeTimerHook = safetyhook::create_mid (ASLR (0x14019FF51), FreezeTimer);
+        freezeTimerHook = safetyhook::create_mid (ASLR (0x14019FF55), FreezeTimer);
         // INSTALL_HOOK (IsTimerNoMove);
     }
 
