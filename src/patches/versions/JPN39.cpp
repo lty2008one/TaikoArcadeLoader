@@ -100,7 +100,7 @@ FreezeTimer (SafetyHookContext &ctx) {
     std::cout << "-----freeze before push" << std::endl;
     lua_pushcclosure(a1, reinterpret_cast<i64>(&lua_freeze_timer), v9);
     std::cout << "-----freeze after push" << std::endl;
-    ctx.rip += 4;
+    ctx.rip = ASLR (0x14019FF65);
 }
 
 int language = 0;
@@ -250,7 +250,7 @@ Init () {
 
     // Freeze Timer
     if (freezeTimer) {
-        freezeTimerHook = safetyhook::create_mid (ASLR (0x14019FF55), FreezeTimer);
+        freezeTimerHook = safetyhook::create_mid (ASLR (0x14019FF51), FreezeTimer);
         // INSTALL_HOOK (IsTimerNoMove);
     }
 
