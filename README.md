@@ -47,6 +47,8 @@ unlock_songs = true
   [patches.jpn39]
   # sync test mode language to attract etc
   fix_language = false
+  # stop timer count down
+  freeze_timer = false
   # use cn font and chineseS wordlist value
   chs_patch = false
   # enable one piece collab mode

@@ -98,6 +98,7 @@ Init () {
     i32 yRes              = 1080;
     bool unlockSongs      = true;
     bool fixLanguage      = false;
+    bool freezeTimer      = false;
     bool chsPatch         = false;
     bool modeCollabo025   = false;
     bool modeCollabo026   = false;
@@ -112,6 +113,7 @@ Init () {
             auto jpn39  = openConfigSection (patches, "jpn39");
             if (jpn39) {
                 fixLanguage      = readConfigBool (jpn39, "fix_language", fixLanguage);
+                freezeTimer      = readConfigBool (jpn39, "freeze_timer", freezeTimer);
                 chsPatch         = readConfigBool (jpn39, "chs_patch", chsPatch);
                 modeCollabo025   = readConfigBool (jpn39, "mode_collabo025", modeCollabo025);
                 modeCollabo026   = readConfigBool (jpn39, "mode_collabo026", modeCollabo026);
@@ -133,6 +135,7 @@ Init () {
     WRITE_MEMORY (ASLR (0x140494533), i32, xRes);
     WRITE_MEMORY (ASLR (0x14049453A), i32, yRes);
     if (unlockSongs) WRITE_MEMORY (ASLR (0x1403F45CF), u8, 0xB0, 0x01);
+    if (freezeTimer) WRITE_MEMORY (ASLR (0x140CA1D70), u8, 0x63, 0x6F, 0x74, 0x74, 0x6F, 0x6E, 0x73, 0x61, 0x6B, 0x75, 0x73, 0x65, 0x69, 0x00);
 
     // Bypass errors
     WRITE_MEMORY (ASLR (0x140041A00), u8, 0xC3);

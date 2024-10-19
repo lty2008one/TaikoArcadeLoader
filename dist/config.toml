@@ -18,6 +18,7 @@ unlock_songs = true
 
   [patches.jpn39]
   fix_language = false
+  freeze_timer = false
   chs_patch = false
   mode_collabo025 = false
   mode_collabo026 = false
