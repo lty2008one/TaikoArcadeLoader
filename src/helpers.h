@@ -24,6 +24,7 @@ typedef double f64;
 #define FUNCTION_PTR_H(returnType, function, ...)         extern returnType (*function) (__VA_ARGS__)
 
 #define PROC_ADDRESS(libraryName, procName) GetProcAddress (LoadLibrary (TEXT (libraryName)), procName)
+#define PROC_ADDRESS_OFFSET(libraryName, offset) (u64)((u64)GetModuleHandle (TEXT (libraryName)) + offset)
 
 #define BASE_ADDRESS 0x140000000
 #ifdef BASE_ADDRESS
