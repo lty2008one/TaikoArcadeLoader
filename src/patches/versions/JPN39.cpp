@@ -1,7 +1,7 @@
 #include "../patches.h"
 #include "helpers.h"
 #include <safetyhook.hpp>
-#include <stdio.h>
+#include <iostream>
 
 namespace patches::JPN39 {
 
@@ -48,7 +48,7 @@ AllocateStaticBufferNear (void *target_address, size_t size, safetyhook::Allocat
 }
 
 void
-ReplaceLeaBufferAddress (const std::vector<uintptr_t> &bufferAddresses, void *newBufferAddress) {
+ReplaceLeaBufferAddress (const std::vector<uintptr_t> &bufferAddresses, void *newBufferAddress) {å
     for (auto bufferAddress : bufferAddresses) {
         uintptr_t lea_instruction_dst = ASLR (bufferAddress) + 3;
         uintptr_t lea_instruction_end = ASLR (bufferAddress) + 7;
@@ -109,6 +109,8 @@ HOOK (i64, IsTimerNoMove, ASLR (0x1401D1B30), i64, i64 a2) {
 int loaded_fail_count = 0;
 HOOK (i64, LoadedBankAll, ASLR (0x1404C6990), i64 a1) {
     auto result = originalLoadedBankAll (a1);
+    std::cout << "LoadedBankAll returns: " << result << std::endl;
+    std::cout << "LoadedBankAll returns: " << *(u32 *)result << std::endl;
     lua_settop(a1, 0);
     if (*(u32 *)result) {
         lua_pushboolean (a1, 1);
