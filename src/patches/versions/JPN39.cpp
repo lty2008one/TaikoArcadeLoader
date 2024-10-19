@@ -31,7 +31,6 @@ lua_pushtrue (i64 a1) {
 
 i64 __fastcall
 lua_freeze_timer (i64 a1) {
-    // i64 v2 = lua_touserdata (a1, 4294957292);
     return lua_pushtrue (a1);
 }
 
@@ -112,24 +111,24 @@ HOOK (i64, GetCabinetLanguage, ASLR (0x1401D1A60), i64, i64 a2) {
     return 1;
 }
 
-// int loaded_fail_count = 0;
-// HOOK (i64, LoadedBankAll, ASLR (0x1404C6990), i64 a1) {
-//     std::cout << "LoadBankAll start" << std::endl;
-//     originalLoadedBankAll (a1);
-//     auto result = lua_toboolean(a1, -1);
-//     std::cout << "LoadedBankAll returns: " << result << std::endl;
-//     std::cout << "LoadedBankAll returns: " << *((int32_t*)result) << std::endl;
-//     lua_settop(a1, 0);
-//     if (result) {
-//         lua_pushboolean (a1, 1);
-//     } else if (loaded_fail_count > 10) {
-//         lua_pushboolean (a1, 1);
-//     } else {
-//         loaded_fail_count += 1;
-//         lua_pushboolean (a1, 0);
-//     }
-//     return 1;
-// }
+int loaded_fail_count = 0;
+HOOK (i64, LoadedBankAll, ASLR (0x1404C69F0), i64 a1) {
+    std::cout << "LoadBankAll start" << std::endl;
+    originalLoadedBankAll (a1);
+    auto result = lua_toboolean(a1, -1);
+    std::cout << "LoadedBankAll returns: " << result << std::endl;
+    // std::cout << "LoadedBankAll returns: " << *((int32_t*)result) << std::endl;
+    lua_settop(a1, 0);
+    if (result) {
+        lua_pushboolean (a1, 1);
+    } else if (loaded_fail_count > 10) {
+        lua_pushboolean (a1, 1);
+    } else {
+        loaded_fail_count += 1;
+        lua_pushboolean (a1, 0);
+    }
+    return 1;
+}
 
 void
 Init () {
@@ -253,8 +252,8 @@ Init () {
     if (modeCollabo026) INSTALL_HOOK (AvailableMode_Collabo026);
     if (modeAprilFool001) INSTALL_HOOK (AvailableMode_AprilFool001);
 
-    // // Fix normal song play after passing through silent song
-    // INSTALL_HOOK(LoadedBankAll);
+    // Fix normal song play after passing through silent song
+    INSTALL_HOOK(LoadedBankAll);
 
     // Disable live check
     auto amHandle = (u64)GetModuleHandle ("AMFrameWork.dll");
