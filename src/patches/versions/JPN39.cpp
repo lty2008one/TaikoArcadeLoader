@@ -16,7 +16,7 @@ HOOK_DYNAMIC (i64, __fastcall, curl_easy_setopt, i64 a1, i64 a2, i64 a3, i64 a4,
 
 FUNCTION_PTR (i64, lua_settop, PROC_ADDRESS ("lua51.dll", "lua_settop"), u64, u64);
 FUNCTION_PTR (i64, lua_pushboolean, PROC_ADDRESS ("lua51.dll", "lua_pushboolean"), u64, u64);
-FUNCTION_PTR (i32, lua_toboolean, PROC_ADDRESS ("lua51.dll", "lua_toboolean"), u64, i32);
+// FUNCTION_PTR (i32, lua_toboolean, PROC_ADDRESS ("lua51.dll", "lua_toboolean"), u64, i32);
 FUNCTION_PTR (i64, lua_pushstring, PROC_ADDRESS ("lua51.dll", "lua_pushstring"), u64, u64);
 
 i64
@@ -107,24 +107,24 @@ HOOK (i64, IsTimerNoMove, ASLR (0x1401D1B30), i64, i64 a2) {
     return 1;
 }
 
-int loaded_fail_count = 0;
-HOOK (i64, LoadedBankAll, ASLR (0x1404C6990), i64 a1) {
-    std::cout << "LoadBankAll start" << std::endl;
-    originalLoadedBankAll (a1);
-    auto result = lua_toboolean(a1, -1);
-    std::cout << "LoadedBankAll returns: " << result << std::endl;
-    std::cout << "LoadedBankAll returns: " << *((int32_t*)result) << std::endl;
-    lua_settop(a1, 0);
-    if (result) {
-        lua_pushboolean (a1, 1);
-    } else if (loaded_fail_count > 10) {
-        lua_pushboolean (a1, 1);
-    } else {
-        loaded_fail_count += 1;
-        lua_pushboolean (a1, 0);
-    }
-    return 1;
-}
+// int loaded_fail_count = 0;
+// HOOK (i64, LoadedBankAll, ASLR (0x1404C6990), i64 a1) {
+//     std::cout << "LoadBankAll start" << std::endl;
+//     originalLoadedBankAll (a1);
+//     auto result = lua_toboolean(a1, -1);
+//     std::cout << "LoadedBankAll returns: " << result << std::endl;
+//     std::cout << "LoadedBankAll returns: " << *((int32_t*)result) << std::endl;
+//     lua_settop(a1, 0);
+//     if (result) {
+//         lua_pushboolean (a1, 1);
+//     } else if (loaded_fail_count > 10) {
+//         lua_pushboolean (a1, 1);
+//     } else {
+//         loaded_fail_count += 1;
+//         lua_pushboolean (a1, 0);
+//     }
+//     return 1;
+// }
 
 void
 Init () {
@@ -248,8 +248,8 @@ Init () {
     if (modeCollabo026) INSTALL_HOOK (AvailableMode_Collabo026);
     if (modeAprilFool001) INSTALL_HOOK (AvailableMode_AprilFool001);
 
-    // Fix normal song play after passing through silent song
-    INSTALL_HOOK(LoadedBankAll);
+    // // Fix normal song play after passing through silent song
+    // INSTALL_HOOK(LoadedBankAll);
 
     // Disable live check
     auto amHandle = (u64)GetModuleHandle ("AMFrameWork.dll");
