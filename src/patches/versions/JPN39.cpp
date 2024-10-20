@@ -18,9 +18,11 @@ FUNCTION_PTR (i64, lua_settop, PROC_ADDRESS ("lua51.dll", "lua_settop"), u64, u6
 FUNCTION_PTR (i64, lua_pushboolean, PROC_ADDRESS ("lua51.dll", "lua_pushboolean"), u64, u64);
 FUNCTION_PTR (i64, lua_pushstring, PROC_ADDRESS ("lua51.dll", "lua_pushstring"), u64, u64);
 FUNCTION_PTR (i64, lua_pushcclosure, PROC_ADDRESS ("lua51.dll", "lua_pushcclosure"), u64, u64, u64);
+FUNCTION_PTR (i64, lua_pushnumber, PROC_ADDRESS ("lua51.dll", "lua_pushnumber"), u64, u64);
 
 FUNCTION_PTR (i64, lua_toboolean, PROC_ADDRESS ("lua51.dll", "lua_toboolean"), u64, u64);
-FUNCTION_PTR (i64, lua_touserdata, PROC_ADDRESS ("lua51.dll", "lua_touserdata"), u64, u64);
+FUNCTION_PTR (i64, lua_tostring, PROC_ADDRESS ("lua51.dll", "lua_tostring"), u64, u64);
+FUNCTION_PTR (double, lua_tonumber, PROC_ADDRESS ("lua51.dll", "lua_tonumber"), u64, u64);
 
 i64
 lua_pushtrue (i64 a1) {
@@ -109,6 +111,47 @@ HOOK (i64, GetCabinetLanguage, ASLR (0x1401D1A60), i64, i64 a2) {
     lua_settop (a2, 0);
     lua_pushstring (a2, (u64)languageStr ());
     return 1;
+}
+
+const char* 
+fixToneName (std::string bankName, std::string toneName) {
+    if ((language == 2 || language == 4) && bankName.starts_with("voice_")) {
+        return (toneName + "_cn").c_str();
+    } else return toneName.c_str();
+}
+
+HOOK (i64, PlaySound, ASLR (0x1404C6DC0), i64 a1) {
+    char* bankName = (char*)lua_tostring (a1, 1);
+    char* toneName = (char*)lua_tostring (a1, 2);
+    double slotNo = lua_tonumber (a1, 3);
+    std::cout << "bankName: " << bankName << std::endl;
+    std::cout << "toneName: " << toneName << std::endl;
+    std::cout << "slotNo: " << slotNo << std::endl;
+    lua_settop (a1, 0);
+    lua_pushstring (a1, (u64)bankName);
+    lua_pushstring (a1, (u64)fixToneName (bankName, toneName));
+    lua_pushnumber (a1, slotNo);
+    return originalPlaySound(a1);
+}
+
+HOOK (i64, PlaySoundMulti, ASLR (0x1404C6DC0), i64 a1) {
+    double playerNum = lua_tonumber (a1, 1);
+    double playerNo = lua_tonumber (a1, 2);
+    char* bankName = (char*)lua_tostring (a1, 3);
+    char* toneName = (char*)lua_tostring (a1, 4);
+    double slotNo = lua_tonumber (a1, 5);
+    std::cout << "playerNum: " << playerNum << std::endl;
+    std::cout << "playerNo: " << playerNo << std::endl;
+    std::cout << "bankName: " << bankName << std::endl;
+    std::cout << "toneName: " << toneName << std::endl;
+    std::cout << "slotNo: " << slotNo << std::endl;
+    lua_settop (a1, 0);
+    lua_pushnumber (a1, playerNum);
+    lua_pushnumber (a1, playerNo);
+    lua_pushstring (a1, (u64)bankName);
+    lua_pushstring (a1, (u64)fixToneName (bankName, toneName));
+    lua_pushnumber (a1, slotNo);
+    return originalPlaySoundMulti(a1);
 }
 
 int loaded_fail_count = 0;
@@ -240,8 +283,8 @@ Init () {
     }
 
     // Fix language
+    INSTALL_HOOK (GetLanguage);         // Language will use in other place
     if (fixLanguage) {
-        INSTALL_HOOK (GetLanguage);
         INSTALL_HOOK (GetRegionLanguage);
         INSTALL_HOOK (GetCabinetLanguage);
     }
