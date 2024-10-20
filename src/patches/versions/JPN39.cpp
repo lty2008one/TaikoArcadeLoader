@@ -283,10 +283,15 @@ Init () {
     }
 
     // Fix language
-    INSTALL_HOOK (GetLanguage);         // Language will use in other place
     if (fixLanguage) {
+        INSTALL_HOOK (GetLanguage);         // Language will use in other place
         INSTALL_HOOK (GetRegionLanguage);
         INSTALL_HOOK (GetCabinetLanguage);
+    }
+
+    if (fixLanguage && chsPatch) {
+        INSTALL_HOOK (PlaySound);
+        INSTALL_HOOK (PlaySoundMulti);
     }
 
     // Mode unlock
