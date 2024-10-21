@@ -92,7 +92,8 @@ std::atomic<int> nus3bankIdCounter(0);
 
 void
 FixNus3BankId (SafetyHookContext &ctx) {
-    std::cout << "HookFixNus3BankId" << std::endl;
+    std::cout << "HookFixNus3BankId rax: " << ctx.rax << std::endl;
+    std::cout << "HookFixNus3BankId rax: " << *((char*)ctx.rax) << std::endl;
     uintptr_t pBegin = ctx.rax - 1;
     uint8_t length = *((uint8_t*)pBegin);
     std::string nus3bankName((char*)pBegin + 1);
