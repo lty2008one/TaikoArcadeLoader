@@ -320,7 +320,7 @@ Init () {
 
     // Fix normal song play after passing through silent song
     // INSTALL_HOOK(LoadedBankAll);
-    fixNus3BankIdHook = safetyhook::create_mid (ASLR (0x1407B97AF), ChangeLanguageType);
+    fixNus3BankIdHook = safetyhook::create_mid (ASLR (0x1407B97AF), FixNus3BankId);
 
     // Disable live check
     auto amHandle = (u64)GetModuleHandle ("AMFrameWork.dll");
