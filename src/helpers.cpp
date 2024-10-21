@@ -109,3 +109,32 @@ printColour (int colour, const char *format, ...) {
 
     va_end (args);
 }
+
+template<typename K, typename V>
+class ThreadSafeMap {
+private:
+    std::map<K, V> m;
+    std::mutex mtx;
+ 
+public:
+    void insert(const K& key, const V& value) {
+        std::lock_guard<std::mutex> lock(mtx);
+        m.insert(std::make_pair(key, value));
+    }
+
+    bool find(const K& key, V& value) {
+        std::lock_guard<std::mutex> lock(mtx);
+        auto it = m.find(key);
+        if (it != m.end()) {
+            value = it->second;
+            return true;
+        }
+        return false;
+    }
+
+    void erase(const K& key) {
+        std::lock_guard<std::mutex> lock(mtx);
+        m.erase(key);
+    }
+
+};

@@ -86,6 +86,24 @@ FreezeTimer (SafetyHookContext &ctx) {
     ctx.rip = ASLR (0x14019FF65);
 }
 
+SafetyHookMid fixNus3BankIdHook{};
+ThreadSafeMap<std::string, int> nus3bankIdMap;
+std::atomic<int> nus3bankIdCounter(0);
+
+void
+FixNus3BankId (SafetyHookContext &ctx) {
+    std::cout << "HookFixNus3BankId" << std::endl;
+    uintptr_t pBegin = ctx.rax - 1;
+    uint8_t length = *((uint8_t*)pBegin);
+    std::string nus3bankName((char*)pBegin + 1);
+    std::cout << "nus3BankName: " << nus3BankName << std::endl; 
+    int currentNus3bankId = nus3bankIdCounter.load();
+    std::cout << "currentNus3bankId: " << currentNus3bankId << std::endl;
+    uintptr_t pIdBegin = pBegin + length + (4 - length % 4);
+    ((uint8_t*)pIdBegin)[0] = (uint8_t)currentNus3bankId;
+    ((uint8_t*)pIdBegin)[1] = (uint8_t)(currentNus3bankId >> 8);
+}
+
 int language = 0;
 const char *
 languageStr () {
@@ -120,39 +138,39 @@ fixToneName (std::string bankName, std::string toneName) {
     } else return toneName.c_str();
 }
 
-HOOK (i64, PlaySound, ASLR (0x1404C6DC0), i64 a1) {
-    char* bankName = (char*)lua_tostring (a1, 1);
-    char* toneName = (char*)lua_tostring (a1, 2);
-    double slotNo = lua_tonumber (a1, 3);
-    std::cout << "bankName: " << bankName << std::endl;
-    std::cout << "toneName: " << toneName << std::endl;
-    std::cout << "slotNo: " << slotNo << std::endl;
-    lua_settop (a1, 0);
-    lua_pushstring (a1, (u64)bankName);
-    lua_pushstring (a1, (u64)fixToneName (bankName, toneName));
-    lua_pushnumber (a1, slotNo);
-    return originalPlaySound(a1);
-}
+// HOOK (i64, PlaySound, ASLR (0x1404C6DC0), i64 a1) {
+//     char* bankName = (char*)lua_tostring (a1, 1);
+//     char* toneName = (char*)lua_tostring (a1, 2);
+//     double slotNo = lua_tonumber (a1, 3);
+//     std::cout << "bankName: " << bankName << std::endl;
+//     std::cout << "toneName: " << toneName << std::endl;
+//     std::cout << "slotNo: " << slotNo << std::endl;
+//     lua_settop (a1, 0);
+//     lua_pushstring (a1, (u64)bankName);
+//     lua_pushstring (a1, (u64)fixToneName (bankName, toneName));
+//     lua_pushnumber (a1, slotNo);
+//     return originalPlaySound(a1);
+// }
 
-HOOK (i64, PlaySoundMulti, ASLR (0x1404C6DC0), i64 a1) {
-    double playerNum = lua_tonumber (a1, 1);
-    double playerNo = lua_tonumber (a1, 2);
-    char* bankName = (char*)lua_tostring (a1, 3);
-    char* toneName = (char*)lua_tostring (a1, 4);
-    double slotNo = lua_tonumber (a1, 5);
-    std::cout << "playerNum: " << playerNum << std::endl;
-    std::cout << "playerNo: " << playerNo << std::endl;
-    std::cout << "bankName: " << bankName << std::endl;
-    std::cout << "toneName: " << toneName << std::endl;
-    std::cout << "slotNo: " << slotNo << std::endl;
-    lua_settop (a1, 0);
-    lua_pushnumber (a1, playerNum);
-    lua_pushnumber (a1, playerNo);
-    lua_pushstring (a1, (u64)bankName);
-    lua_pushstring (a1, (u64)fixToneName (bankName, toneName));
-    lua_pushnumber (a1, slotNo);
-    return originalPlaySoundMulti(a1);
-}
+// HOOK (i64, PlaySoundMulti, ASLR (0x1404C6DC0), i64 a1) {
+//     double playerNum = lua_tonumber (a1, 1);
+//     double playerNo = lua_tonumber (a1, 2);
+//     char* bankName = (char*)lua_tostring (a1, 3);
+//     char* toneName = (char*)lua_tostring (a1, 4);
+//     double slotNo = lua_tonumber (a1, 5);
+//     std::cout << "playerNum: " << playerNum << std::endl;
+//     std::cout << "playerNo: " << playerNo << std::endl;
+//     std::cout << "bankName: " << bankName << std::endl;
+//     std::cout << "toneName: " << toneName << std::endl;
+//     std::cout << "slotNo: " << slotNo << std::endl;
+//     lua_settop (a1, 0);
+//     lua_pushnumber (a1, playerNum);
+//     lua_pushnumber (a1, playerNo);
+//     lua_pushstring (a1, (u64)bankName);
+//     lua_pushstring (a1, (u64)fixToneName (bankName, toneName));
+//     lua_pushnumber (a1, slotNo);
+//     return originalPlaySoundMulti(a1);
+// }
 
 int loaded_fail_count = 0;
 HOOK (i64, LoadedBankAll, ASLR (0x1404C69F0), i64 a1) {
@@ -289,10 +307,10 @@ Init () {
         INSTALL_HOOK (GetCabinetLanguage);
     }
 
-    if (fixLanguage && chsPatch) {
-        INSTALL_HOOK (PlaySound);
-        INSTALL_HOOK (PlaySoundMulti);
-    }
+    // if (fixLanguage && chsPatch) {
+    //     INSTALL_HOOK (PlaySound);
+    //     INSTALL_HOOK (PlaySoundMulti);
+    // }
 
     // Mode unlock
     if (modeCollabo025) INSTALL_HOOK (AvailableMode_Collabo025);
@@ -300,7 +318,8 @@ Init () {
     if (modeAprilFool001) INSTALL_HOOK (AvailableMode_AprilFool001);
 
     // Fix normal song play after passing through silent song
-    INSTALL_HOOK(LoadedBankAll);
+    // INSTALL_HOOK(LoadedBankAll);
+    fixNus3BankIdHook = safetyhook::create_mid (ASLR (0x1407B97AF), ChangeLanguageType);
 
     // Disable live check
     auto amHandle = (u64)GetModuleHandle ("AMFrameWork.dll");
