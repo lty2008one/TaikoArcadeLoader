@@ -110,22 +110,22 @@ printColour (int colour, const char *format, ...) {
     va_end (args);
 }
 
-void ThreadSafeMap::insert(const K& key, const V& value) {
-    std::lock_guard<std::mutex> lock(this.mtx);
-    this.m.insert(std::make_pair(key, value));
-}
+// void ThreadSafeMap<K, V>::insert(const K& key, const V& value) {
+//     std::lock_guard<std::mutex> lock(this.mtx);
+//     this.m.insert(std::make_pair(key, value));
+// }
 
-bool ThreadSafeMap::find(const K& key, V& value) {
-    std::lock_guard<std::mutex> lock(this.mtx);
-    auto it = this.m.find(key);
-    if (it != this.m.end()) {
-        value = it->second;
-        return true;
-    }
-    return false;
-}
+// bool ThreadSafeMap<K, V>::find(const K& key, V& value) {
+//     std::lock_guard<std::mutex> lock(this.mtx);
+//     auto it = this.m.find(key);
+//     if (it != this.m.end()) {
+//         value = it->second;
+//         return true;
+//     }
+//     return false;
+// }
 
-void ThreadSafeMap::erase(const K& key) {
-    std::lock_guard<std::mutex> lock(this.mtx);
-    this.m.erase(key);
-}
+// void ThreadSafeMap<K, V>::erase(const K& key) {
+//     std::lock_guard<std::mutex> lock(this.mtx);
+//     this.m.erase(key);
+// }

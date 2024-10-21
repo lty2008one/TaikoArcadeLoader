@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <toml.h>
 #include <windows.h>
-#include <map>
-#include <mutex>
+// #include <map>
+// #include <mutex>
 #include <atomic>
 
 typedef int8_t i8;
@@ -133,14 +133,14 @@ const std::string readConfigString (toml_table_t *table, const std::string &key,
 std::vector<int64_t> readConfigIntArray (toml_table_t *table, const std::string &key, std::vector<int64_t> notFoundValue);
 void printColour (int colour, const char *format, ...);
 
-template<typename K, typename V>
-class ThreadSafeMap {
-private:
-    std::map<K, V> m;
-    std::mutex mtx;
+// template<typename K, typename V>
+// class ThreadSafeMap {
+// private:
+//     std::map<K, V> m;
+//     std::mutex mtx;
 
-public:
-    void insert(const K& key, const V& value);
-    bool find(const K& key, V& value);
-    void erase(const K& key);
-};
+// public:
+//     void insert(const K& key, const V& value);
+//     bool find(const K& key, V& value);
+//     void erase(const K& key);
+// };

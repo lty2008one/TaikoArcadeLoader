@@ -87,7 +87,7 @@ FreezeTimer (SafetyHookContext &ctx) {
 }
 
 SafetyHookMid fixNus3BankIdHook{};
-ThreadSafeMap<std::string, int> nus3bankIdMap;
+// ThreadSafeMap<std::string, int> nus3bankIdMap;
 std::atomic<int> nus3bankIdCounter(0);
 
 void
