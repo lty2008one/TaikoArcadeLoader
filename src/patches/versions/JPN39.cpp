@@ -99,6 +99,7 @@ FixNus3BankId (SafetyHookContext &ctx) {
     std::string nus3bankName((char*)pBegin + 1);
     std::cout << "nus3BankName: " << nus3bankName << std::endl; 
     int currentNus3bankId = nus3bankIdCounter.load();
+    nus3bankIdCounter++;
     std::cout << "currentNus3bankId: " << currentNus3bankId << std::endl;
     uintptr_t pIdBegin = pBegin + length + (4 - length % 4);
     ((uint8_t*)pIdBegin)[0] = (uint8_t)currentNus3bankId;
